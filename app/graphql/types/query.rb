@@ -5,7 +5,7 @@ module Types
     field :model, Types::Model,
       function: Queries::FetchField.new(type: Types::Model, model_class: ::Model)
 
-    field :models, Types::Model.connection_type,
+    field :models, Types::Model.connection_type, connection: true,
       function: Queries::PluralField.new(type: Types::Model, model_class: ::Model)
   end
 end
