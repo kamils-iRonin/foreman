@@ -10,8 +10,6 @@ class JwtSecret < ApplicationRecord
 
   before_save :generate_token, on: :create, prepend: true, :unless => Proc.new {|j| j.token.present?}
 
-  scope :for_user, ->(user) { find_by(user: user) }
-
   private
 
   def generate_token

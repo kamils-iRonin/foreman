@@ -2,8 +2,12 @@ require 'test_helper'
 require 'ostruct'
 
 class JwtTokenTest < ActiveSupport::TestCase
+  # Token created from encoding with 'test_jwt_secret' a following payload:
+  # { 'user_id' => 123, 'iat' => 1514804400, 'jti' => '3e8286940eb162ec735f8a5aac5926037fdc7f05e521a74231a65f2557a8af94' }
+  let(:token) { 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxMjMsImlhdCI6MTUxNDgwNDQwMCwianRpIjoiM2U4Mjg2OTQwZWIxNjJlYzczNWY4YTVhYWM1OTI2MDM3ZmRjN2YwNWU1MjFhNzQyMzFhNjVmMjU1N2E4YWY5NCJ9.TSM2xMnMuMEWwAVoIidyLIwJElJQZVQvcfaxyVA7cDI' }
+
   test 'encoding' do
-    JwtToken.stubs(:iat).returns(1514804400)
+    JwtToken.stubs(:iat).returns(1_514_804_400)
 
     user = OpenStruct.new(id: 123)
     jwt_token = JwtToken.encode(user, 'test_jwt_secret')
@@ -13,12 +17,12 @@ class JwtTokenTest < ActiveSupport::TestCase
 
   test 'decoding' do
     jwt_secret = FactoryBot.build(:jwt_secret, token: 'test_jwt_secret')
-    JwtSecret.stubs(:for_user).returns(jwt_secret)
+    JwtSecret.stubs(:find_by).returns(jwt_secret)
     jwt_token = JwtToken.new(token)
 
     expected = {'user_id' => 123,
                 'iat' => 1_514_804_400,
-                'jti' => 'b4e196b3dd77f9e2116ba086a1a9b435'}
+                'jti' => '3e8286940eb162ec735f8a5aac5926037fdc7f05e521a74231a65f2557a8af94'}
 
     assert_equal expected, jwt_token.decode
   end
@@ -26,7 +30,9 @@ class JwtTokenTest < ActiveSupport::TestCase
   test 'decoding invalid token' do
     jwt_token = JwtToken.new('inVaLiD.inVaLiD.inVaLiD')
 
-    assert_nil jwt_token.decode
+    assert_raises JWT::DecodeError do
+      jwt_token.decode
+    end
   end
 
   test 'decoding empty token' do
@@ -38,23 +44,18 @@ class JwtTokenTest < ActiveSupport::TestCase
   test 'decoding garbage token' do
     jwt_token = JwtToken.new('fjdfhjjkdsjfdjksn')
 
-    assert_nil jwt_token.decode
+    assert_raises JWT::DecodeError do
+      jwt_token.decode
+    end
   end
 
   test 'decoding with invalid secret' do
     jwt_secret = FactoryBot.build(:jwt_secret, token: 'invalid_jwt_secret')
-    JwtSecret.stubs(:for_user).returns(jwt_secret)
+    JwtSecret.stubs(:find_by).returns(jwt_secret)
     jwt_token = JwtToken.new(token)
 
     assert_raises JWT::VerificationError do
       jwt_token.decode
     end
-  end
-
-  # Token created from encoding with 'test_jwt_secret' a following payload:
-  #
-  # { 'user_id' => 123, 'iat' => 1514804400, 'jti' => 'b4e196b3dd77f9e2116ba086a1a9b435' }
-  def token
-    'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxMjMsImlhdCI6MTUxNDgwNDQwMCwianRpIjoiYjRlMTk2YjNkZDc3ZjllMjExNmJhMDg2YTFhOWI0MzUifQ.GkZWjmsRP1v9KrcJGBaH2PJlSoPKALWtYMkJy6OaZhA'
   end
 end

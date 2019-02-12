@@ -22,9 +22,7 @@ class JwtTest < ActiveSupport::TestCase
     end
 
     context 'with valid token' do
-      let(:token) do
-        users(:one).jwt_token!
-      end
+      let(:token) { users(:one).jwt_token! }
 
       test '#authenticate! authenticates a user' do
         assert_equal users(:one).login, sso.authenticated?
@@ -34,6 +32,16 @@ class JwtTest < ActiveSupport::TestCase
     end
 
     context 'with invalid token' do
+      test '#authenticate! does not set user' do
+        assert_nil sso.authenticated?
+        assert_nil sso.user
+        assert_nil sso.current_user
+      end
+    end
+
+    context "with token signed with another user's secret" do
+      let(:token) { JwtToken.encode(users(:one), users(:two).jwt_secret!.token) }
+
       test '#authenticate! does not set user' do
         assert_nil sso.authenticated?
         assert_nil sso.user

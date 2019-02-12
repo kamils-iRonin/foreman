@@ -36,9 +36,8 @@ class JwtToken < Struct.new(:token)
   private
 
   def secret
-    @secret ||= begin
-                  JwtSecret.for_user(user_id) if user_id
-                end
+    return @secret if defined? @secret
+    @secret = JwtSecret.find_by(user: user_id)
   end
 
   def user_id
