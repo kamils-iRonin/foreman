@@ -540,7 +540,11 @@ module Foreman #:nodoc:
     delegate :graphql_types_registry, to: :class
 
     def extend_graphql_type(type:, with_module: nil, &block)
+      ActiveRecord::Base.connection
+
       graphql_types_registry.register_extension(type: type, with_module: with_module, &block)
+    rescue ActiveRecord::NoDatabaseError
+      false
     end
 
     def register_graphql_query_field(field_name, type, field_type)
