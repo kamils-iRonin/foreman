@@ -28,6 +28,7 @@ class Setting::General < Setting
       set('instance_id', N_("Foreman instance ID, uniquely identifies this Foreman instance."), 'uuid', N_('Foreman UUID'), Foreman.uuid),
       set('default_locale', N_("Language to use for new users"), nil, N_('Default language'), nil, { :collection => proc { locales } }),
       set('default_timezone', N_("Timezone to use for new users"), nil, N_('Default timezone'), nil, { :collection => proc { timezones } }),
+      set('templates_rendering_statuses_refresh_interval', N_('The refreshing interval for templates rendering status (in minutes)'), 5, N_('Templates rendering status refresh interval'))
     ]
   end
 

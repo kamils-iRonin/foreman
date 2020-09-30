@@ -669,4 +669,38 @@ class UnattendedControllerTest < ActionController::TestCase
       end
     end
   end
+
+  context 'when safemode rendering is disabled' do
+    let(:os) { operatingsystems(:redhat) }
+    let(:ptable) { FactoryBot.create(:ptable, operatingsystem_ids: [os.id]) }
+    let(:host) do
+      FactoryBot.create(:host,
+                        :managed,
+                        build: true,
+                        operatingsystem: os,
+                        ptable: ptable,
+                        medium: os.media.first,
+                        architecture: os.architectures.first)
+    end
+
+    setup do
+      Setting[:safemode_render] = false
+    end
+
+    it 'uses unsafemode renderer' do
+      Foreman::Renderer::UnsafeModeRenderer.expects(:render).once
+      Foreman::Renderer::SafeModeRenderer.expects(:render).never
+
+      get :host_template, params: { kind: :provision, mac: host.mac }
+    end
+
+    context 'with safemode parameter' do
+      it 'uses safemode renderer' do
+        Foreman::Renderer::UnsafeModeRenderer.expects(:render).never
+        Foreman::Renderer::SafeModeRenderer.expects(:render).once
+
+        get :host_template, params: { kind: :provision, mac: host.mac, safemode: true }
+      end
+    end
+  end
 end

@@ -8,6 +8,7 @@ class Environment < ApplicationRecord
 
   validates_lengths_from_database
   before_destroy EnsureNotUsedBy.new(:hosts, :hostgroups)
+  after_save :refresh_templates_rendering_status_combinations
 
   has_many :environment_classes, :dependent => :destroy
   has_many :puppetclasses, -> { distinct }, :through => :environment_classes
@@ -27,6 +28,13 @@ class Environment < ApplicationRecord
   }
 
   scoped_search :on => :name, :complete_value => :true
+
+  private
+
+  def refresh_templates_rendering_status_combinations
+    HostStatus::TemplatesRenderingStatus.where(host_id: host_ids)
+                                        .update_all(status: HostStatus::TemplatesRenderingStatus::PENDING)
+  end
 
   class << self
     # TODO: this needs to be removed, as PuppetDOC generation no longer works

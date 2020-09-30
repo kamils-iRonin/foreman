@@ -29,6 +29,9 @@ class Host::Managed < Host::Base
   has_many :reports, :foreign_key => :host_id, :class_name => 'ConfigReport'
   has_one :last_report_object, -> { order("#{Report.table_name}.id DESC") }, :foreign_key => :host_id, :class_name => 'ConfigReport'
   has_many :all_reports, :foreign_key => :host_id
+  has_many :templates_rendering_status_combinations, foreign_key: :host_id,
+                                                     inverse_of: :host,
+                                                     dependent: :destroy
 
   belongs_to :image
   has_many :host_statuses, :class_name => 'HostStatus::Status', :foreign_key => 'host_id', :inverse_of => :host, :dependent => :destroy
@@ -71,6 +74,7 @@ class Host::Managed < Host::Base
   after_commit :build_hooks
   before_save :clear_data_on_build
   before_save :clear_puppetinfo, :if => :environment_id_changed?
+  after_save :refresh_templates_rendering_status, if: -> { (previous_changes.keys - ['global_status', 'updated_at']).any? }
 
   include PxeLoaderValidator
 
@@ -940,6 +944,10 @@ autopart"', desc: 'to render the content of host partition table'
   end
 
   private
+
+  def refresh_templates_rendering_status
+    get_status(HostStatus::TemplatesRenderingStatus).update(status: HostStatus::TemplatesRenderingStatus::PENDING)
+  end
 
   def update_os_from_facts
     operatingsystem.architectures << architecture if operatingsystem && architecture && !operatingsystem.architectures.include?(architecture)

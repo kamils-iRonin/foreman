@@ -41,6 +41,7 @@ class Hostgroup < ApplicationRecord
   belongs_to :subnet6, :class_name => "Subnet"
 
   before_save :remove_duplicated_nested_class
+  after_save :refresh_templates_rendering_status_combinations
 
   alias_attribute :arch, :architecture
   alias_attribute :os, :operatingsystem
@@ -289,6 +290,11 @@ class Hostgroup < ApplicationRecord
   end
 
   private
+
+  def refresh_templates_rendering_status_combinations
+    HostStatus::TemplatesRenderingStatus.where(host_id: host_ids)
+                                        .update_all(status: HostStatus::TemplatesRenderingStatus::PENDING)
+  end
 
   def nested_root_pw
     if ancestry.present?

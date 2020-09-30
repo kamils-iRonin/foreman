@@ -42,6 +42,7 @@ class Operatingsystem < ApplicationRecord
   validates :title, :uniqueness => true, :presence => true
 
   before_validation :set_family
+  after_save :refresh_templates_rendering_status_combinations
 
   default_scope -> { order(:title) }
 
@@ -332,6 +333,11 @@ class Operatingsystem < ApplicationRecord
   end
 
   private
+
+  def refresh_templates_rendering_status_combinations
+    HostStatus::TemplatesRenderingStatus.where(host_id: host_ids)
+                                        .update_all(status: HostStatus::TemplatesRenderingStatus::PENDING)
+  end
 
   def set_family
     self.family ||= deduce_family

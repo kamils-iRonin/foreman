@@ -29,6 +29,7 @@ module Foreman
         end
 
         attr_reader :host, :params, :variables_keys, :mode, :source
+        attr_accessor :renderer
 
         def get_binding
           binding
