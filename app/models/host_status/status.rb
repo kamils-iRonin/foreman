@@ -17,6 +17,10 @@ module HostStatus
       allow_class_method :status_name, :humanized_name
     end
 
+    def self.stats_present?
+      self.respond_to?(:stats)
+    end
+
     def to_global(options = {})
       HostStatus::Global::OK
     end

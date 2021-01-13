@@ -38,6 +38,7 @@ module Menu
       Manager.map :top_menu do |menu|
         menu.sub_menu :monitor_menu,    :caption => N_('Monitor'), :icon => 'fa fa-tachometer' do
           menu.item :dashboard,         :caption => N_('Dashboard'), :exact => true
+          menu.item :host_statuses,     :caption => N_('Host Statuses')
           menu.item :fact_values,       :caption => N_('Facts')
           menu.item :audits,            :caption => N_('Audits')
           menu.divider                  :caption => N_('Reports')

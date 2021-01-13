@@ -201,6 +201,8 @@ Foreman::Application.routes.draw do
     end
   end
 
+  resources :host_statuses, only: [:index]
+
   resources :hostgroups, except: [:show] do
     member do
       get 'nest'

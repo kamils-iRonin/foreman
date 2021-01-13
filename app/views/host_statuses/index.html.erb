@@ -1,0 +1,69 @@
+<% javascript 'host_statuses' %>
+
+<% title header ||= _("Host Statuses") %>
+
+<div class="list-group list-view-pf list-view-pf-equalized-column" style="max-height: initial;">
+  <% @statuses.each do |status| %>
+    <div class="status-row list-group-item list-view-pf-stacked list-view-pf-top-align">
+      <div class="list-group-item-header">
+        <div class="list-view-pf-expand">
+          <span class="fa fa-angle-right"></span>
+        </div>
+        <div class="list-view-pf-main-info">
+          <div class="list-view-pf-left">
+            <span class="<%= host_status_global_status_icon_class(status) %> fa-lg"></span>
+          </div>
+          <div class="list-view-pf-body">
+            <div class="list-view-pf-description">
+              <div class="list-group-item-heading">
+                <%= status.status_name %>
+              </div>
+              <div class="list-group-item-text">
+                <%= status.try(:description) %>
+              </div>
+            </div>
+            <div class="list-view-pf-additional-info">
+              <div class="list-view-pf-additional-info-item">
+                <%= icon_text('ok', '', :kind => 'pficon') %>
+                <strong><%= status.stats.select { |item| item[:global_status] == HostStatus::Global::OK }.sum { |item| item[:hosts_count] } %></strong>
+                <%= _('OK') %>
+              </div>
+              <div class="list-view-pf-additional-info-item">
+                <%= icon_text('warning-triangle-o', '', :kind => 'pficon') %>
+                <strong><%= status.stats.select { |item| item[:global_status] == HostStatus::Global::WARN }.sum { |item| item[:hosts_count] } %></strong>
+                <%= _('Warning') %>
+              </div>
+              <div class="list-view-pf-additional-info-item">
+                <%= icon_text('error-circle-o', '', :kind => 'pficon') %>
+                <strong><%= status.stats.select { |item| item[:global_status] == HostStatus::Global::ERROR }.sum { |item| item[:hosts_count] } %></strong>
+                <%= _('Critical') %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="list-group-item-container container-fluid hidden">
+        <div class="close">
+          <span class="pficon pficon-close"></span>
+        </div>
+        <div class="row">
+          <div class="col-md-12 status-hosts-container">
+            <% status.stats.sort_by { |item| item.fetch(:global_status) }.each do |row| %>
+              <div>
+                <div class="list-view-pf-description">
+                  <span class="<%= host_global_status_icon_class(row[:global_status]) %> fa-lg"></span>
+                  <%= row.fetch(:label) %>
+                </div>
+                <div class="list-view-pf-additional-info">
+                  <div class="list-view-pf-additional-info-item">
+                    <%= row.fetch(:hosts_count) %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

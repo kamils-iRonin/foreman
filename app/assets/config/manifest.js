@@ -25,3 +25,4 @@
 //= link proxy_status.js
 //= link about.js
 //= link parameter_override.js
+//= link host_statuses.js
