@@ -6,11 +6,15 @@ module Foreman
       def self.render(source, scope)
         result = super
 
-        trigger_hook(:unsafemode_rendered, payload: { host_id: scope.host&.id, template_id: source.template&.id }) unless scope.preview? || source.template&.snippet?
+        if !scope.preview? && source.template.is_a?(ProvisioningTemplate) && !source.template&.snippet?
+          trigger_hook(:unsafemode_rendered, payload: { host_id: scope.host&.id, template_id: source.template&.id })
+        end
 
         result
       rescue StandardError => e
-        trigger_hook(:unsafemode_rendering_error, payload: { host_id: scope.host&.id, template_id: source.template&.id }) unless scope.preview? || source.template&.snippet?
+        if !scope.preview? && source.template.is_a?(ProvisioningTemplate) && !source.template&.snippet?
+          trigger_hook(:unsafemode_rendering_error, payload: { host_id: scope.host&.id, template_id: source.template&.id })
+        end
 
         raise e
       end
