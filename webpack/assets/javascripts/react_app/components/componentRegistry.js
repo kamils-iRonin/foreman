@@ -48,6 +48,7 @@ import { WelcomeEnv } from './Enviroments/Welcome';
 import { WelcomeAuthSource } from './AuthSource/Welcome';
 import { WelcomeConfigReports } from './ConfigReports/Welcome';
 import { WelcomeArchitecture } from './Architectures/Welcome';
+import HostStatuses from './HostStatuses';
 
 const componentRegistry = {
   registry: forceSingleton('component_registry', () => ({})),
@@ -149,6 +150,7 @@ const coreComponets = [
   { name: 'PersonalAccessTokens', type: PersonalAccessTokens },
   { name: 'ClipboardCopy', type: ClipboardCopy },
   { name: 'LabelIcon', type: LabelIcon },
+  { name: 'HostStatuses', type: HostStatuses },
   {
     name: 'RelativeDateTime',
     type: RelativeDateTime,
