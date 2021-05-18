@@ -165,9 +165,14 @@ class Template < ApplicationRecord
     self.class.log_render_results?
   end
 
-  def render(renderer: Foreman::Renderer, host: nil, params: {}, variables: {}, mode: Foreman::Renderer::REAL_MODE, template_input_values: {}, source_klass: nil)
+  def render(renderer: Foreman::Renderer, host: nil, params: {}, variables: {}, mode: Foreman::Renderer::REAL_MODE, template_input_values: {}, source_klass: nil, scope: nil)
     source = Foreman::Renderer.get_source(template: self, host: host, klass: source_klass)
-    scope = Foreman::Renderer.get_scope(host: host, params: params, variables: variables, mode: mode, template: self, source: source, template_input_values: template_input_values)
+
+    if scope
+      variables.map { |key, value| scope.set_variable(key, value) }
+    else
+      scope = Foreman::Renderer.get_scope(host: host, params: params, variables: variables, mode: mode, template: self, source: source, template_input_values: template_input_values)
+    end
 
     renderer.render(source, scope)
   end

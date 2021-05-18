@@ -40,6 +40,11 @@ module Foreman
           binding
         end
 
+        def set_variable(key, value)
+          instance_variable_set("@#{key}", value)
+          @variables_keys = variables_keys | [key]
+        end
+
         def allowed_variables
           @allowed_variables ||= begin
             allowed = Foreman::Renderer.config.allowed_variables + variables_keys
